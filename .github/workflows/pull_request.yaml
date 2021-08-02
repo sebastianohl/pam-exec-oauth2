@@ -45,7 +45,7 @@ jobs:
 
     - name: Prepare upload
       run: |
-        export GITHUB_TAG_NAME=${GITHUB_REF##*/}
+        export GITHUB_TAG_NAME=${TAG_NAME}
         mkdir -p pam-exec-oauth2/${GITHUB_TAG_NAME}/
         sudo chown -R $(id -u):$(id -g) bin
         mv bin/* pam-exec-oauth2/${GITHUB_TAG_NAME}/
