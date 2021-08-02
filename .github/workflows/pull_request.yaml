@@ -41,7 +41,7 @@ jobs:
     - name: Build
       run: |
         make
-	      sha256sum bin/pam-exec-oauth2 > bin/pam-exec-oauth2.sha256
+        sha256sum bin/pam-exec-oauth2 > bin/pam-exec-oauth2.sha256
 
     - name: Prepare upload
       run: |
