@@ -21,7 +21,15 @@ sudo chmod 600 $PREFIX/pam-exec-oauth2.yaml
 add the following lines to `/etc/pam.d/common-auth`
 
 ```bash
+#### create user and authenticate on login #####
 auth sufficient pam_exec.so expose_authtok /opt/pam-exec-oauth2/pam-exec-oauth2
+```
+
+add the following lines to `/etc/pam.d/common-session`
+
+```bash
+#### remove user on logout #####
+session     optional    pam_exec.so quiet /opt/pam-exec-oauth2/pam-exec-oauth2
 ```
 
 ### pam-exec-oauth2.yaml
@@ -40,4 +48,28 @@ scopes:
 endpoint-auth-url: "https://login.windows.net/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/oauth2/authorize"
 endpoint-token-url: "https://login.windows.net/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/oauth2/token"
 username-format: "%s@example.org"
+createuser: true
+sufficient-roles: 
+    - "serverAccess"
+allowed-roles: 
+    - "wheel"
+```
+
+#### Keycloak
+
+```yaml
+---
+client-id: "xxxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+client-secret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+redirect-url: "urn:ietf:wg:oauth:2.0:oob"
+scopes: 
+    - "email"
+endpoint-auth-url: "https://%host%/auth/realms/%yourrealm%/protocol/openid-connect/auth"
+endpoint-token-url: "https://%host%/auth/realms/%yourrealm%/protocol/openid-connect/token"
+username-format: "%s"
+createuser: true
+sufficient-roles: 
+    - "serverAccess"
+allowed-roles: 
+    - "wheel"
 ```
