@@ -36,7 +36,6 @@ import (
 
 	"github.com/metal-stack/v"
 	"golang.org/x/oauth2"
-	"gopkg.in/square/go-jose.v2/jwt"
 	"gopkg.in/yaml.v2"
 )
 
@@ -53,9 +52,8 @@ type config struct {
 	EndpointAuthURL  string   `yaml:"endpoint-auth-url"`
 	EndpointTokenURL string   `yaml:"endpoint-token-url"`
 	UsernameFormat   string   `yaml:"username-format"`
-	SufficientRoles  []string `yaml:"sufficient-roles"`
 	// AllowedRoles are OS level groups which must be present on the OS before
-	AllowedRoles []string `yaml:"allowed-roles"`
+	DefaultGroups []string `yaml:"default-groups"`
 	CreateUser   bool     `yaml:"createuser"`
 }
 
@@ -136,21 +134,8 @@ func (p *pamOAUTH) run() error {
 		return fmt.Errorf("oauth2 authentication failed")
 	}
 
-	// check group for authentication is in token
-	roles, err := validateClaims(oauth2Token.AccessToken, p.config.SufficientRoles)
-	if err != nil {
-		return fmt.Errorf("error validate Claims: %w", err)
-	}
-
-	// Filter out all not allowed roles comming from OIDC
 	groups := []string{}
-	for _, r := range roles {
-		for _, ar := range p.config.AllowedRoles {
-			if r == ar {
-				groups = append(groups, r)
-			}
-		}
-	}
+	groups = p.config.DefaultGroups
 	err = modifyUser(username, groups)
 	if err != nil {
 		return fmt.Errorf("unable to add groups: %w", err)
@@ -231,33 +216,6 @@ func readConfig(filename string) (*config, error) {
 	return &c, nil
 }
 
-// myClaim define token struct
-type myClaim struct {
-	jwt.Claims
-	Roles []string `json:"roles,omitempty"`
-}
-
-// validateClaims check role fom config sufficientRoles is in token roles claim
-func validateClaims(t string, sufficientRoles []string) ([]string, error) {
-	token, err := jwt.ParseSigned(t)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing token: %w", err)
-	}
-
-	claims := myClaim{}
-	if err := token.UnsafeClaimsWithoutVerification(&claims); err != nil {
-		return nil, fmt.Errorf("unable to extract claims from token: %w", err)
-	}
-	for _, role := range claims.Roles {
-		for _, sr := range sufficientRoles {
-			if role == sr {
-				log.Print("validateClaims access granted role " + role + " is in token")
-				return claims.Roles, nil
-			}
-		}
-	}
-	return nil, fmt.Errorf("role: %s not found", sufficientRoles)
-}
 
 // createUser if it does not already exists
 func createUser(username string) error {
