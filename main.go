@@ -90,10 +90,17 @@ func (p *pamOAUTH) run() error {
 	}
 
 	// add user here only if user is in passwd the login worked
+	createdUser := false
 	if p.config.CreateUser {
-		err := createUser(username)
+		_, err := user.Lookup(username)
 		if err != nil {
-			return err
+		  	createdUser = true
+			err = createUser(username)
+			if err != nil {
+				return err
+			}
+		} else {
+		  	createdUser = false
 		}
 	}
 
@@ -126,11 +133,17 @@ func (p *pamOAUTH) run() error {
 		password,
 	)
 	if err != nil {
+		if createdUser {
+			deleteUser(username)
+		}
 		return err
 	}
 
 	// check here is token vaild
 	if !oauth2Token.Valid() {
+		if createdUser {
+			deleteUser(username)
+		}
 		return fmt.Errorf("oauth2 authentication failed")
 	}
 
