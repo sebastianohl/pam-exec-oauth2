@@ -14,6 +14,15 @@ sudo chmod 755 $PREFIX/pam-exec-oauth2
 sudo chmod 600 $PREFIX/pam-exec-oauth2.yaml
 ```
 
+### Note
+xscreensafer requires you to give setuid-root to `pam-exec-oauth2` to allow you to unlock the screen again. Otherwise you need to expose the config yaml file with the secret key!
+
+### building
+```
+apt-get install golang-go
+go build main.go
+```
+
 ## Configuration
 
 ### PAM
