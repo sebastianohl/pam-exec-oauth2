@@ -268,7 +268,7 @@ func modifyUser(username string, groups []string) error {
 		return fmt.Errorf("usermod command was not found %w", err)
 	}
 
-	args := []string{"-G"}
+	args := []string{"-a", "-G"}
 	args = append(args, groups...)
 	args = append(args, username)
 	cmd := exec.Command(usermod, args...)
