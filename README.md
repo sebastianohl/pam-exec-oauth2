@@ -58,10 +58,8 @@ endpoint-auth-url: "https://login.windows.net/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx
 endpoint-token-url: "https://login.windows.net/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/oauth2/token"
 username-format: "%s@example.org"
 createuser: true
-sufficient-roles: 
-    - "serverAccess"
-allowed-roles: 
-    - "wheel"
+default-groups: 
+    - "users"
 ```
 
 #### Keycloak
@@ -77,8 +75,6 @@ endpoint-auth-url: "https://%host%/auth/realms/%yourrealm%/protocol/openid-conne
 endpoint-token-url: "https://%host%/auth/realms/%yourrealm%/protocol/openid-connect/token"
 username-format: "%s"
 createuser: true
-sufficient-roles: 
-    - "serverAccess"
-allowed-roles: 
-    - "wheel"
+default-groups: 
+    - "users"
 ```
